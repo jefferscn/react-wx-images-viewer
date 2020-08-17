@@ -129,6 +129,17 @@ class ImageContainer extends PureComponent {
     }
   }
 
+  toDataURL = () => {
+    var canvas = document.createElement('CANVAS');
+    var ctx = canvas.getContext('2d');
+    var dataURL;
+    canvas.height = this.actualHeight;
+    canvas.width = this.actualWith;
+    ctx.drawImage(this.img, 0, 0);
+    dataURL = canvas.toDataURL();
+    return dataURL;
+  }
+
   onLoad = () => {
     this.actualWith = this.img.width;
     this.actualHeight = this.img.height;
@@ -150,12 +161,15 @@ class ImageContainer extends PureComponent {
     }
     this.originTop = top;
 
+    const dataURL = this.toDataURL();
+
     this.setState({
       width: this.originWidth,
       height: this.originHeight,
       scale: 1,
       left,
       top,
+      dataURL,
       isLoaded: true,
     });
   }
@@ -168,6 +182,7 @@ class ImageContainer extends PureComponent {
 
   loadImg = (url) => {
     this.img = new Image();
+    this.img.crossOrigin = 'use-credentials';
     this.img.src = url;
     this.img.onload = this.onLoad;
     this.img.onerror = this.onError;
@@ -502,6 +517,7 @@ class ImageContainer extends PureComponent {
       scale,
       width,
       height,
+      dataURL,
     } = this.state;
 
     const ImageStyle = {
@@ -528,7 +544,7 @@ class ImageContainer extends PureComponent {
         style={defaultStyle}
       >
         {
-          isLoaded ? <img src={src} style={ImageStyle} alt="" /> : <Loading />
+          isLoaded ? <img src={dataURL} style={ImageStyle} alt="" /> : <Loading />
         }
       </div>
     );
